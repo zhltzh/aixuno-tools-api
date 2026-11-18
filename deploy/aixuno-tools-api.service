@@ -1,0 +1,18 @@
+[Unit]
+Description=Aixuno Tools API (photo restore & video watermark jobs)
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/aixuno-tools-api
+ExecStart=/usr/bin/node src/server.js
+EnvironmentFile=/etc/aixuno-tools/aixuno-tools.env
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/aixuno-tools
+
+[Install]
+WantedBy=multi-user.target
