@@ -10,6 +10,8 @@ export const config = {
   redisUrl: process.env.REDIS_URL || '',
   ffmpegPath: process.env.FFMPEG_PATH || 'ffmpeg',
   ffprobePath: process.env.FFPROBE_PATH || 'ffprobe',
+  ffmpegVcodec: process.env.FFMPEG_VCODEC || 'libx264',
+  ffmpegVbitrate: process.env.FFMPEG_VBITRATE || '6M',
   jobTtlHours: Number(process.env.JOB_TTL_HOURS || 24),
   provider: process.env.AI_PROVIDER || 'mock',
   pythonBin: process.env.PYTHON_BIN || 'python3',

@@ -1,6 +1,14 @@
 import { probeMedia, runFfmpeg } from '../lib/ffmpeg.js';
 import { uploadPath, outputDir } from '../storage.js';
+import { config } from '../config.js';
 import { join } from 'node:path';
+
+function videoCodecArgs() {
+  if (config.ffmpegVcodec === 'libopenh264') {
+    return ['-c:v', 'libopenh264', '-b:v', config.ffmpegVbitrate];
+  }
+  return ['-c:v', 'libx264', '-crf', '18', '-preset', 'veryfast'];
+}
 
 function clampRegion(region, width, height) {
   let x = Math.max(0, Math.round(region.x * width));
@@ -117,9 +125,7 @@ export async function processWatermark(job, onProgress) {
       '-y',
       '-i', inputPath,
       ...filterArgs,
-      '-c:v', 'libx264',
-      '-crf', '18',
-      '-preset', 'veryfast',
+      ...videoCodecArgs(),
       '-c:a', 'aac',
       '-b:a', '128k',
       '-movflags', '+faststart',

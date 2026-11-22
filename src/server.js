@@ -17,7 +17,7 @@ export async function buildApp(logger = true) {
   await ensureDirs();
   const store = createStore();
   const queue = createQueue(store, processJob);
-  const app = Fastify({ logger, bodyLimit: 2 * 1024 * 1024 });
+  const app = Fastify({ logger, bodyLimit: 2 * 1024 * 1024, trustProxy: true });
   app.decorate('toolsStore', store);
   app.decorate('toolsQueue', queue);
   await app.register(multipart, { attachFieldsToBody: false, limits: { fileSize: config.maxUploadBytes, files: 1 } });

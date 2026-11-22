@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { createWriteStream } from 'node:fs';
-import { mkdir, stat, unlink, readdir } from 'node:fs/promises';
+import { mkdir, stat, unlink, readdir, open } from 'node:fs/promises';
 import { join, extname } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import { config, uploadDir, outputDir } from './config.js';
@@ -48,6 +48,35 @@ export async function saveUpload(fileStream, fileName, kind, maxBytes) {
     throw err;
   }
   return { key, size: info.size };
+}
+
+export async function verifyMagicBytes(path, kind) {
+  const handle = await open(path, 'r');
+  try {
+    const buf = Buffer.alloc(12);
+    await handle.read(buf, 0, 12, 0);
+    const hex = buf.toString('hex');
+    const ascii = buf.toString('latin1');
+    if (kind === 'image') {
+      const ok =
+        hex.startsWith('ffd8ff') ||
+        hex.startsWith('89504e47') ||
+        (ascii.startsWith('RIFF') && ascii.slice(8, 12) === 'WEBP');
+      if (!ok) {
+        const err = new Error('file content is not a valid image');
+        err.statusCode = 400;
+        throw err;
+      }
+    } else {
+      if (ascii.slice(4, 8) !== 'ftyp') {
+        const err = new Error('file content is not a valid video');
+        err.statusCode = 400;
+        throw err;
+      }
+    }
+  } finally {
+    await handle.close();
+  }
 }
 
 export async function removeQuietly(path) {
