@@ -63,6 +63,7 @@ class BullMQueue {
       config.queueName,
       async (bullJob) => {
         const job = bullJob.data;
+        await this.store.update(job.id, { status: 'processing', progress: 0 }).catch(() => {});
         const onProgress = async (progress) => {
           try {
             await bullJob.updateProgress(Math.round(progress));
